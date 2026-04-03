@@ -164,4 +164,4 @@ npm test
 ```
 ## License
 
-This project is for educational and portfolio use.
+This project is for educational use.
