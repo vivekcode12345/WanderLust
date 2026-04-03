@@ -19,7 +19,6 @@ Recommended future images:
 ## Live Demo
 
 - Deployed App: https://wanderlust-project-2z5k.onrender.com
-- Demo Notes Folder: [`live-demo/`](live-demo)
 
 ## Live Features
 
