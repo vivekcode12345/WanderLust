@@ -1,0 +1,100 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Sidebar -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profile</h5>
+                    <p class="mb-2"><strong>Username:</strong> <%= user.username %></p>
+                    <p class="mb-2"><strong>Email:</strong> <%= user.email %></p>
+                    <p class="mb-3"><strong>Member Since:</strong> <%= new Date(user._id.getTimestamp()).toLocaleDateString() %></p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="/favorites" class="btn btn-outline-primary btn-sm">View My Favorites</a>
+                        <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Statistics</h5>
+                    <p class="mb-1"><strong>My Listings:</strong> <span class="badge bg-primary"><%= userListings.length %></span></p>
+                    <p class="mb-0"><strong>Favorites:</strong> <span class="badge bg-success"><%= favoriteCount %></span></p>
+                    <p class="mb-1 mt-2"><strong>My Bookings:</strong> <span class="badge bg-warning text-dark"><%= myBookingsCount %></span></p>
+                    <p class="mb-0"><strong>Managed Bookings:</strong> <span class="badge bg-secondary"><%= managedBookingsCount %></span></p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body d-grid gap-2">
+                    <a href="/bookings/me" class="btn btn-outline-primary btn-sm">View My Bookings</a>
+                    <a href="/bookings/manage" class="btn btn-outline-dark btn-sm">Manage Bookings</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- My Listings Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">My Listings</h5>
+                        <% if (user.isAdmin) { %>
+                            <a href="/listings/new" class="btn btn-sm btn-success">Create New Listing</a>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <% if(!user.isAdmin) { %>
+                        <div class="alert alert-warning">
+                            You have viewer access. Only admin can add, edit, or delete listings.
+                        </div>
+                    <% } %>
+                    <% if(userListings.length === 0) { %>
+                        <div class="alert alert-info">
+                            <p>You haven't created any listings yet.</p>
+                            <% if (user.isAdmin) { %>
+                                <a href="/listings/new" class="btn btn-success">Create Your First Listing</a>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Location</th>
+                                        <th>Price</th>
+                                        <th>Reviews</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(let listing of userListings) { %>
+                                        <tr>
+                                            <td><strong><%= listing.title %></strong></td>
+                                            <td><%= listing.location %></td>
+                                            <td>&#8377;<%= listing.price.toLocaleString("en-IN") %></td>
+                                            <td><span class="badge bg-info"><%= listing.reviews.length || 0 %></span></td>
+                                            <td>
+                                                <a href="/listings/<%= listing._id %>" class="btn btn-sm btn-info">View</a>
+                                                <a href="/listings/<%= listing._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
+                                                <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

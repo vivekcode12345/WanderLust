@@ -1,0 +1,37 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <h1>Your Favorite Listings</h1>
+    
+    <% if(favoriteListings.length === 0) { %>
+        <div class="alert alert-info text-center mt-4">
+            <p>You haven't added any listings to your favorites yet.</p>
+            <a href="/listings" class="btn btn-primary">Explore Listings</a>
+        </div>
+    <% } else { %>
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-3 mt-3">
+            <% for(let listing of favoriteListings) { %>
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <div class="card col listing-card">
+                        <img src="<%= listing.image.url %>"
+                            class="card-img-top" 
+                            alt="listing_image" 
+                            style="height: 20rem;"
+                        />
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <b><%= listing.title %></b><br/>
+                                <% if (listing.price != null) { %>
+                                    &#8377;<%= listing.price.toLocaleString("en-IN") %> /night
+                                <% } else { %>
+                                    Price not available
+                                <% } %>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            <% } %>
+        </div>
+    <% } %>
+</div>

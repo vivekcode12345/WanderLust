@@ -1,0 +1,60 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Booking Management</h1>
+    <a href="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+  </div>
+
+  <% if(bookings.length === 0) { %>
+    <div class="alert alert-info">
+      No bookings available to manage.
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Listing</th>
+            <th>Guest</th>
+            <th>Dates</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const booking of bookings) { %>
+            <tr>
+              <td>
+                <a href="/listings/<%= booking.listing._id %>"><%= booking.listing.title %></a><br>
+                <small class="text-muted"><%= booking.listing.location %>, <%= booking.listing.country %></small>
+              </td>
+              <td>
+                <%= booking.guest.username %><br>
+                <small class="text-muted"><%= booking.guest.email %></small>
+              </td>
+              <td>
+                <%= booking.checkInDate.toLocaleDateString() %> - <%= booking.checkOutDate.toLocaleDateString() %>
+              </td>
+              <td>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></td>
+              <td>
+                <span class="badge bg-<%= booking.status === 'confirmed' ? 'success' : booking.status === 'cancelled' ? 'danger' : 'warning text-dark' %>"><%= booking.status %></span>
+              </td>
+              <td>
+                <form method="POST" action="/bookings/<%= booking._id %>/status?_method=PATCH" class="d-flex gap-2 flex-wrap">
+                  <select name="status" class="form-select form-select-sm w-auto">
+                    <option value="pending" <%= booking.status === 'pending' ? 'selected' : '' %>>pending</option>
+                    <option value="confirmed" <%= booking.status === 'confirmed' ? 'selected' : '' %>>confirmed</option>
+                    <option value="cancelled" <%= booking.status === 'cancelled' ? 'selected' : '' %>>cancelled</option>
+                  </select>
+                  <button class="btn btn-sm btn-dark">Update</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

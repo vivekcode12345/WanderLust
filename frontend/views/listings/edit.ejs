@@ -1,0 +1,116 @@
+<% layout("layouts/boilerplate") %>
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+    <h3>Edit Your Listing</h3>
+    <form method="post" action="/listings/<%=listing._id%>?_method=PUT" class="needs-validation" novalidate enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input name="listing[title]" value="<%= listing.title %>" type="text" class="form-control" required/>
+            <div class="valid-feedback">Title looks good !</div>  
+        </div>
+        
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <div class="d-flex gap-2 mb-2">
+              <button type="button" id="ai-generate-description" class="btn btn-outline-secondary btn-sm">Regenerate with AI</button>
+              <span id="ai-generate-status" class="text-muted small"></span>
+            </div>
+            <textarea id="description" name="listing[description]" class="form-control" required><%=listing.description%>   
+            </textarea>
+        <div class="invalid-feedback">Please enter a short description</div>
+        </div>
+        
+        <div class="mb-3">
+          Original Image:<br>  
+          <img src="<%= originalImageUrl || '/images/placeholder.svg' %>" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
+        </div>
+
+        <div class="mb-3">
+          <label for="image" class="form-label">Upload New Image</label>
+          <input name="listing[image]" type="file" class="form-control" />
+        </div>
+
+       <div class="row">
+       <div class="mb-3 col-md-4">
+            <label for="price" class="form-label">Price</label>
+            <input name="listing[price]" value="<%= listing.price %>" type="number" class="form-control" required/>
+            <div class="invalid-feedback">Price should be valid.</div>
+            </div>
+
+            <div class="mb-3 col-md-8">
+            <label for="location" class="form-label">Location</label>
+            <input name="listing[location]" value="<%= listing.location %>" type="text" class="form-control" required/>
+            <div class="invalid-feedback">Location should be valid.</div>
+            </div>
+       </div>
+
+       <div class="mb-3">
+        <label for="country" class="form-label">Country</label>
+        <input name="listing[country]" value="<%= listing.country %>" type="text" class="form-control" required/>
+        <div class="invalid-feedback">Country should be valid.</div>
+       </div>
+
+       <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select name="listing[category]" class="form-select" required>
+          <option value="Trending" <%= listing.category === 'Trending' ? 'selected' : '' %>>Trending</option>
+          <option value="Rooms" <%= listing.category === 'Rooms' ? 'selected' : '' %>>Rooms</option>
+          <option value="Iconic Cities" <%= listing.category === 'Iconic Cities' ? 'selected' : '' %>>Iconic Cities</option>
+          <option value="Mountains" <%= listing.category === 'Mountains' ? 'selected' : '' %>>Mountains</option>
+          <option value="Castles" <%= listing.category === 'Castles' ? 'selected' : '' %>>Castles</option>
+          <option value="Amazing Pools" <%= listing.category === 'Amazing Pools' ? 'selected' : '' %>>Amazing Pools</option>
+          <option value="Camping" <%= listing.category === 'Camping' ? 'selected' : '' %>>Camping</option>
+          <option value="Farms" <%= listing.category === 'Farms' ? 'selected' : '' %>>Farms</option>
+          <option value="Arctic" <%= listing.category === 'Arctic' ? 'selected' : '' %>>Arctic</option>
+          <option value="Domes" <%= listing.category === 'Domes' ? 'selected' : '' %>>Domes</option>
+          <option value="Boats" <%= listing.category === 'Boats' ? 'selected' : '' %>>Boats</option>
+        </select>
+        <div class="invalid-feedback">Category should be valid.</div>
+       </div>
+        <button type="submit" class="btn btn-dark edit-btn mt-3">Edit</button>
+    </form>
+ </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const aiBtn = document.getElementById("ai-generate-description");
+    const aiStatus = document.getElementById("ai-generate-status");
+    const descriptionField = document.getElementById("description");
+
+    if (!aiBtn || !aiStatus || !descriptionField) return;
+
+    aiBtn.addEventListener("click", async function () {
+      const title = document.querySelector('input[name="listing[title]"]')?.value || "";
+      const location = document.querySelector('input[name="listing[location]"]')?.value || "";
+      const country = document.querySelector('input[name="listing[country]"]')?.value || "";
+      const price = document.querySelector('input[name="listing[price]"]')?.value || "";
+
+      aiBtn.disabled = true;
+      aiStatus.textContent = "Generating...";
+
+      try {
+        const response = await fetch("/listings/ai/description", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ title, location, country, price })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to generate description");
+        }
+
+        descriptionField.value = data.description;
+        aiStatus.textContent = "Description generated.";
+      } catch (err) {
+        aiStatus.textContent = err.message;
+      } finally {
+        aiBtn.disabled = false;
+      }
+    });
+  });
+</script>
+

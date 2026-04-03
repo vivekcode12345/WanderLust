@@ -1,0 +1,56 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Bookings</h1>
+    <a href="/listings" class="btn btn-outline-primary">Explore More</a>
+  </div>
+
+  <% if(bookings.length === 0) { %>
+    <div class="alert alert-info">
+      You have not booked any listings yet.
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Listing</th>
+            <th>Dates</th>
+            <th>Guests</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const booking of bookings) { %>
+            <tr>
+              <td>
+                <a href="/listings/<%= booking.listing._id %>"><%= booking.listing.title %></a><br>
+                <small class="text-muted"><%= booking.listing.location %>, <%= booking.listing.country %></small>
+              </td>
+              <td>
+                <%= booking.checkInDate.toLocaleDateString() %> - <%= booking.checkOutDate.toLocaleDateString() %>
+              </td>
+              <td><%= booking.guests %></td>
+              <td>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></td>
+              <td>
+                <span class="badge bg-<%= booking.status === 'confirmed' ? 'success' : booking.status === 'cancelled' ? 'danger' : 'warning text-dark' %>"><%= booking.status %></span>
+              </td>
+              <td>
+                <% if (booking.status !== 'cancelled') { %>
+                  <form method="POST" action="/bookings/<%= booking._id %>/cancel?_method=PATCH" class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                  </form>
+                <% } else { %>
+                  <span class="text-muted">Cancelled</span>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

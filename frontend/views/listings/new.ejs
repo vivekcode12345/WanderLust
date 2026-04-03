@@ -1,0 +1,133 @@
+<% layout("layouts/boilerplate") %>
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+    <br>
+    <h3>Create a New Listing</h3>
+    <form method="post" action="/listings" class=" needs-validation" novalidate enctype="multipart/form-data">
+        <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input name="listing[title]" 
+              placeholder="Add a catchy title" 
+              type="text" 
+              class="form-control"
+              required
+              />
+              <div class="valid-feedback">Title looks good !</div>
+
+        </div>
+        
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <div class="d-flex gap-2 mb-2">
+                <button type="button" id="ai-generate-description" class="btn btn-outline-secondary btn-sm">Generate with AI</button>
+                <span id="ai-generate-status" class="text-muted small"></span>
+            </div>
+            <textarea name="listing[description]" 
+            id="description"
+            placeholder="enter description"
+            class="form-control"
+            required></textarea>
+             <div class="invalid-feedback">Please enter a short description</div>
+        </div>
+    
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload Listing Image</label>
+            <input name="listing[image]" type="file" class="form-control"  />
+            required
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-4">
+            <label for="price" class="form-label">Price</label>
+            <input name="listing[price]" 
+            placeholder="1200" 
+            class="form-control"
+            required
+            />
+            <div class="invalid-feedback">Price should be valid.</div>
+            </div>
+
+            <div class="mb-3 col-md-8">
+            <label for="location" class="form-label">Location</label>
+           <input name="listing[location]" placeholder="Jaipur,Rajasthan" type="text"
+           class="form-control"
+           required
+           />
+            <div class="invalid-feedback">Location should be valid.</div>
+          </div>
+        </div>
+
+        
+        <div class="mb-3"> 
+            <label for="country" class="form-label">Country</label>
+            <input name="listing[country]" placeholder="India" type="text"
+            class="form-control" required/>
+            <div class="invalid-feedback">Country should be valid.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select name="listing[category]" class="form-select" required>
+                <option value="Trending">Trending</option>
+                <option value="Rooms">Rooms</option>
+                <option value="Iconic Cities">Iconic Cities</option>
+                <option value="Mountains">Mountains</option>
+                <option value="Castles">Castles</option>
+                <option value="Amazing Pools">Amazing Pools</option>
+                <option value="Camping">Camping</option>
+                <option value="Farms">Farms</option>
+                <option value="Arctic">Arctic</option>
+                <option value="Domes">Domes</option>
+                <option value="Boats">Boats</option>
+            </select>
+            <div class="invalid-feedback">Category should be valid.</div>
+        </div>
+        
+        <button type="submit" class="btn btn-dark add-btn mt-3">Create Listing</button>
+
+    
+    </form>
+  </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const aiBtn = document.getElementById("ai-generate-description");
+        const aiStatus = document.getElementById("ai-generate-status");
+        const descriptionField = document.getElementById("description");
+
+        if (!aiBtn || !aiStatus || !descriptionField) return;
+
+        aiBtn.addEventListener("click", async function () {
+            const title = document.querySelector('input[name="listing[title]"]')?.value || "";
+            const location = document.querySelector('input[name="listing[location]"]')?.value || "";
+            const country = document.querySelector('input[name="listing[country]"]')?.value || "";
+            const price = document.querySelector('input[name="listing[price]"]')?.value || "";
+
+            aiBtn.disabled = true;
+            aiStatus.textContent = "Generating...";
+
+            try {
+                const response = await fetch("/listings/ai/description", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ title, location, country, price })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to generate description");
+                }
+
+                descriptionField.value = data.description;
+                aiStatus.textContent = "Description generated.";
+            } catch (err) {
+                aiStatus.textContent = err.message;
+            } finally {
+                aiBtn.disabled = false;
+            }
+        });
+    });
+</script>

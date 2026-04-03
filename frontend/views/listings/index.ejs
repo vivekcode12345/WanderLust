@@ -1,0 +1,235 @@
+<% layout("layouts/boilerplate") %> 
+
+<!-- Search and Filter Form -->
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <form method="GET" action="/listings" class="row g-3">
+        <div class="col-md-4">
+          <input 
+            type="text" 
+            class="form-control" 
+            name="search" 
+            placeholder="Search by title or location..." 
+            value="<%= searchParams?.search || '' %>"
+          />
+        </div>
+        
+        <div class="col-md-2">
+          <input 
+            type="number" 
+            class="form-control" 
+            name="minPrice" 
+            placeholder="Min Price" 
+            value="<%= searchParams?.minPrice || '' %>"
+          />
+        </div>
+        
+        <div class="col-md-2">
+          <input 
+            type="number" 
+            class="form-control" 
+            name="maxPrice" 
+            placeholder="Max Price" 
+            value="<%= searchParams?.maxPrice || '' %>"
+          />
+        </div>
+        
+        <div class="col-md-2">
+          <select class="form-select" name="sort">
+            <option value="">Sort by...</option>
+            <option value="price-asc" <%= searchParams?.sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="price-desc" <%= searchParams?.sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="newest" <%= searchParams?.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+          </select>
+        </div>
+        
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary w-100">Search</button>
+          <a href="/listings" class="btn btn-secondary">Clear</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <% if(allListings.length === 0) { %>
+    <div class="alert alert-info text-center">
+      No listings found. Try adjusting your search or <a href="/listings">view all listings</a>.
+    </div>
+  <% } %>
+</div>
+
+<style>
+  #filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter {
+    text-align: center;
+    margin-right: 1rem;
+    margin-top: 2rem;
+    opacity: 0.7;
+  }
+  .filter-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  .filter.active {
+    opacity: 1;
+    border-bottom: 2px solid #111;
+  }
+  .filter:hover{
+    opacity: 1;
+    cursor: pointer;
+  }
+  .filter p{
+    font-size: 0.8rem;
+  }
+  .tax-info {
+    display: none;
+  }
+   
+  .tax-toggle {
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 1rem;
+    height: 3.25rem;
+    margin-left: 2rem;
+    display: flex;
+    align-items: center;
+  }
+
+</style>
+
+<div id="filters">
+  <a class="filter-link" href="/listings?category=Trending">
+    <div class="filter <%= searchParams?.category === 'Trending' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-fire"></i></div>
+      <p>Trending</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Rooms">
+    <div class="filter <%= searchParams?.category === 'Rooms' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-bed"></i></div>
+      <p>Rooms</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Iconic%20Cities">
+    <div class="filter <%= searchParams?.category === 'Iconic Cities' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-mountain-city"></i></div>
+      <p>Iconic Cities</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Mountains">
+    <div class="filter <%= searchParams?.category === 'Mountains' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-mountain"></i></div>
+      <p>Mountains</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Castles">
+    <div class="filter <%= searchParams?.category === 'Castles' ? 'active' : '' %>">
+      <div><i class="fa-brands fa-fort-awesome"></i></div>
+      <p>Castles</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Amazing%20Pools">
+    <div class="filter <%= searchParams?.category === 'Amazing Pools' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-person-swimming"></i></div>
+      <p>Amazing Pools</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Camping">
+    <div class="filter <%= searchParams?.category === 'Camping' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-tent"></i></div>
+      <p>Camping</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Farms">
+    <div class="filter <%= searchParams?.category === 'Farms' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-cow"></i></div>
+      <p>Farms</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Arctic">
+    <div class="filter <%= searchParams?.category === 'Arctic' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-snowflake"></i></div>
+      <p>Arctic</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Domes">
+    <div class="filter <%= searchParams?.category === 'Domes' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-igloo"></i></div>
+      <p>Domes</p>
+    </div>
+  </a>
+
+  <a class="filter-link" href="/listings?category=Boats">
+    <div class="filter <%= searchParams?.category === 'Boats' ? 'active' : '' %>">
+      <div><i class="fa-solid fa-ship"></i></div>
+      <p>Boats</p>
+    </div>
+  </a>
+
+  <div class="tax-toggle">
+    <div class="form-check-reverse form-switch">
+    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+    <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+    </div>
+  </div>
+
+</div>
+  
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-3 mt-3">
+  <% for(let listing of allListings) { %>
+    <a href="/listings/<%= listing._id %>" class="listing-link">
+      <div class="card col listing-card">
+        <img src="<%= listing.image?.url || '/images/placeholder.svg' %>"
+         class="card-img-top" 
+         alt="listing_image" 
+         style="height: 20rem;"
+         onerror="this.onerror=null;this.src='/images/placeholder.svg';"
+        />
+        <div class="card-img-overlay"></div>
+        <div class="card-body">
+          <p class="card-text">
+            <b><%= listing.title %></b><br/>
+            <% if (listing.price != null) { %>
+              &#8377;<%= listing.price.toLocaleString("en-IN") %> /night
+            <% } else { %>
+              Price not available
+            <% } %>
+            <i class="tax-info">&nbsp;&nbsp; +18% GST</i>
+          </p>
+        </div>
+      </div>
+    </a>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    let taxswitch = document.getElementById("switchCheckDefault");
+    if (taxswitch) {
+      taxswitch.addEventListener("click", () => {
+        let taxInfo=document.getElementsByClassName("tax-info");
+        for(info of taxInfo){
+          if(info.style.display!=="inline"){
+            info.style.display="inline";
+          } else {
+            info.style.display="none";
+          }
+        }
+      });
+    }
+  });
+</script>

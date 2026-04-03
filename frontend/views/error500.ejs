@@ -1,0 +1,28 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="display-1">500</h1>
+            <h2 class="mb-4">Server Error</h2>
+            <p class="lead mb-4">
+                Oops! Something went wrong on our end.
+            </p>
+            <p class="text-muted mb-4">
+                Error: <%= message || 'Internal Server Error' %>
+            </p>
+            <div class="d-grid gap-2">
+                <a href="/listings" class="btn btn-primary btn-lg">Back to Home</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .display-1 {
+        font-size: 5rem;
+        font-weight: 700;
+        color: #dc3545;
+    }
+</style>

@@ -1,0 +1,107 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title mb-3">Book <%= listing.title %></h3>
+          <p class="text-muted mb-4">
+            <strong><%= listing.location %>, <%= listing.country %></strong> • &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
+          </p>
+
+          <form method="POST" action="/listings/<%= listing._id %>/book">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="checkInDate">Check-in Date</label>
+                <input type="date" class="form-control" id="checkInDate" name="booking[checkInDate]" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="checkOutDate">Check-out Date</label>
+                <input type="date" class="form-control" id="checkOutDate" name="booking[checkOutDate]" required />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="guests">Guests</label>
+              <input type="number" min="1" class="form-control" id="guests" name="booking[guests]" value="1" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="notes">Special Requests</label>
+              <textarea class="form-control" id="notes" name="booking[notes]" rows="4" placeholder="Add arrival time, special request, etc."></textarea>
+            </div>
+
+            <div class="alert alert-info">
+              Estimated price is calculated using the listing's nightly rate after you submit.
+            </div>
+
+            <div class="card bg-light mb-3">
+              <div class="card-body py-2">
+                <div><strong>Nightly Price:</strong> &#8377;<%= listing.price.toLocaleString("en-IN") %></div>
+                <div><strong>Total Nights:</strong> <span id="bookingNights">0</span></div>
+                <div><strong>Estimated Total:</strong> &#8377;<span id="bookingEstimate">0</span></div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success">Confirm Booking Request</button>
+              <a href="/listings/<%= listing._id %>" class="btn btn-outline-secondary">Back to Listing</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const nightlyPrice = <%= Number(listing.price || 0) %>;
+    const checkInInput = document.getElementById("checkInDate");
+    const checkOutInput = document.getElementById("checkOutDate");
+    const nightsEl = document.getElementById("bookingNights");
+    const estimateEl = document.getElementById("bookingEstimate");
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const minDate = `${yyyy}-${mm}-${dd}`;
+
+    checkInInput.min = minDate;
+    checkOutInput.min = minDate;
+
+    function toDate(value) {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function updateEstimate() {
+      const start = toDate(checkInInput.value);
+      const end = toDate(checkOutInput.value);
+
+      if (!start || !end || end <= start) {
+        nightsEl.textContent = "0";
+        estimateEl.textContent = "0";
+        return;
+      }
+
+      const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+      const estimate = nights * nightlyPrice;
+
+      nightsEl.textContent = String(nights);
+      estimateEl.textContent = estimate.toLocaleString("en-IN");
+    }
+
+    checkInInput.addEventListener("change", function () {
+      if (checkInInput.value) {
+        checkOutInput.min = checkInInput.value;
+      }
+      updateEstimate();
+    });
+
+    checkOutInput.addEventListener("change", updateEstimate);
+  })();
+</script>
