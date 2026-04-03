@@ -4,8 +4,9 @@ WanderLust is a full-stack travel accommodation listing platform built with Node
 
 ### Uploaded Screenshots
 
-- [Screenshot 2026-04-03 at 3.09.25 PM.png](screenshots/Screenshot%202026-04-03%20at%203.09.25%E2%80%AFPM.png)
-- [Screenshot 2026-04-03 at 3.11.13 PM.png](screenshots/Screenshot%202026-04-03%20at%203.11.13%E2%80%AFPM.png)
+![WanderLust screenshot 1](screenshots/Screenshot%202026-04-03%20at%203.09.25%E2%80%AFPM.png)
+
+![WanderLust screenshot 2](screenshots/Screenshot%202026-04-03%20at%203.11.13%E2%80%AFPM.png)
 
 Recommended future images:
 
