@@ -1,6 +1,6 @@
-# WanderLust
+# WanderLust 2.0
 
-WanderLust is a full-stack travel accommodation listing platform built with Node.js, Express, MongoDB, and EJS. It lets users browse stays, search and filter listings, view listing details on a map, create bookings, manage favorites, and leave reviews. Admin users can create, edit, and delete listings, while regular users can browse and book available stays.
+Modern full-stack travel accommodation platform with a Next.js 14 frontend and Express.js backend.
 
 ### Uploaded Screenshots
 
@@ -8,17 +8,15 @@ WanderLust is a full-stack travel accommodation listing platform built with Node
 
 ![WanderLust screenshot 2](screenshots/Screenshot%202026-04-03%20at%203.11.13%E2%80%AFPM.png)
 
-Recommended future images:
-
-- Homepage and listing cards
-- Listing details page
-- Booking form
-- My Bookings page
-- Manage Bookings page
-
 ## Live Demo
 
 - Deployed App: https://wanderlust-project-2z5k.onrender.com
+
+## Overview
+
+WanderLust is a full-stack travel accommodation listing platform that lets users browse stays, search and filter listings, view listing details on a map, create bookings, manage favorites, and leave reviews. Admin users can create, edit, and delete listings, while regular users can browse and book available stays.
+
+The platform features a modern Next.js 14 frontend with TypeScript and Tailwind CSS, powered by a robust Express.js and MongoDB backend.
 
 ## Live Features
 
@@ -35,125 +33,132 @@ Recommended future images:
 
 ## Tech Stack
 
-- **Frontend:** EJS, HTML, CSS, Bootstrap, vanilla JavaScript
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Mongoose
-- **Authentication:** Passport.js, Passport Local Mongoose
-- **File Uploads:** Multer, Cloudinary
-- **Maps:** Mapbox
-- **AI Integration:** Groq SDK
-- **Email:** Nodemailer
-- **Security:** Helmet, express-rate-limit, connect-mongo
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State Management**: TanStack Query + Zustand
+- **Forms**: React Hook Form + Zod
+- **Animations**: Framer Motion
+- **Maps**: Mapbox GL
 
-## Project Structure
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose
+- **Authentication**: Passport.js
+- **File Uploads**: Multer + Cloudinary
+- **Email**: Nodemailer
+- **AI**: Groq SDK
+- **Security**: Helmet, express-rate-limit, express-session
 
-```text
-backend/
-  app.js
-  controllers/
-  models/
-  routes/
-  init/
-  middleware.js
-  schema.js
-  utils/
-frontend/
-  views/
-  public/
-screenshots/
-live-demo/
-package.json
-.env.example
-```
+## Getting Started
 
-## Setup Instructions
+### Prerequisites
 
-### 1. Install Dependencies
+- Node.js 18+ installed
+- MongoDB database (local or Atlas)
+- Backend server running on port 8080
 
+### Frontend Installation
+
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-### 2. Configure Environment Variables
-
-Create a `.env` file in the project root using `.env.example` as reference.
-
-Required variables:
-
-```env
-ATLASDB_URL=
-SECRET=
-CLOUD_NAME=
-CLOUD_API_KEY=
-CLOUD_API_SECRET=
-MAP_TOKEN=
-GROQ_API_KEY=
-EMAIL_SERVICE=
-EMAIL_USER=
-EMAIL_PASS=
-APP_URL=http://localhost:8080
-PORT=8080
-```
-
-### 3. Start the Server
-
+2. Set up environment variables:
 ```bash
-npm start
+cp .env.example .env.local
 ```
 
-For development with auto-reload:
+3. Update `.env.local` with your configuration
 
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-### 4. Open the App
+5. Open [http://localhost:3000](http://localhost:3000)
 
-Visit:
+### Backend Setup
 
-```text
-http://127.0.0.1:8080
+The Express.js backend is located in the `backend/` directory. Ensure it's running on port 8080 for the frontend to communicate with it.
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run type-check` - Run TypeScript compiler
+- `npm test` - Run tests
+
+## Project Structure
+
+```
+├── src/
+│   ├── app/              # Next.js App Router pages
+│   ├── components/       # React components
+│   ├── lib/             # Utilities and helpers
+│   ├── hooks/           # Custom React hooks
+│   ├── types/           # TypeScript type definitions
+│   ├── constants/       # App constants
+│   ├── providers/       # Context providers
+│   └── styles/          # Global styles
+├── backend/             # Express.js API server
+│   ├── controllers/     # Route controllers
+│   ├── models/         # Mongoose models
+│   ├── routes/         # API routes
+│   ├── middleware.js    # Express middleware
+│   └── app.js          # Express app entry
+└── screenshots/        # Project screenshots
 ```
 
-## Main User Flows
+## Features
 
-### Guest / Normal User
+- Browse listings with search and filters
+- View listing details with map integration
+- Book accommodations with date selection
+- Manage bookings (guest and host)
+- Write and manage reviews
+- Save favorite listings
+- User dashboard with statistics
+- Admin listing management
+- Password reset flow
+- Responsive design
+- Dark mode support
 
-- Sign up and log in
-- Browse all listings
-- Use search, filters, and sorting
-- Open listing details
-- Create booking requests
-- View own bookings
-- Save favorites
-- Write reviews
+## Development
 
-### Admin
+This project follows modern web development best practices:
 
-- Add new listings
-- Edit or delete listings
-- Generate listing descriptions with AI
-- Review and manage bookings
-- Confirm or cancel booking requests
+### Frontend
+- Server Components by default
+- Client Components for interactivity
+- Type-safe with TypeScript
+- Utility-first CSS with Tailwind
+- Component-driven development
 
-## API / Route Highlights
+### Backend
+- MVC architecture
+- RESTful API design
+- MongoDB with strategic indexing
+- Passport.js authentication
+- Input validation with Joi
+- Security best practices (Helmet, rate limiting)
 
-- `/listings` - browse listings
-- `/listings/:id` - listing details
-- `/listings/:id/book` - booking form and booking creation
-- `/bookings/me` - user bookings
-- `/bookings/manage` - admin/host booking management
-- `/signup`, `/login`, `/logout` - auth routes
-- `/favorites` - saved listings
-- `/health` - service health check
+## API Routes
 
-## Functional Notes
-
-- Uploaded listing images are stored in Cloudinary.
-- If an image URL fails, the UI falls back to a local placeholder.
-- Booking date overlap is prevented.
-- Global rate limiting is enabled to protect the app from abuse.
-- Admin-only actions are protected server-side.
+- `/listings` - Browse listings
+- `/listings/:id` - Listing details
+- `/listings/:id/book` - Booking form and creation
+- `/bookings/me` - User bookings
+- `/bookings/manage` - Admin/host booking management
+- `/signup`, `/login`, `/logout` - Authentication
+- `/favorites` - Saved listings
+- `/health` - Service health check
 
 ## Testing
 
@@ -162,6 +167,15 @@ Run the test suite with:
 ```bash
 npm test
 ```
+
+## Deployment
+
+### Frontend
+Deployed on Vercel with automatic CI/CD.
+
+### Backend
+Deployed on Render with MongoDB Atlas.
+
 ## License
 
-This project is for educational use.
+MIT
