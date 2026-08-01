@@ -1,0 +1,418 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  GUEST
+  HOST
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum NotificationType {
+  BOOKING_REQUEST
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  BOOKING_COMPLETED
+  REVIEW_REQUEST
+  NEW_MESSAGE
+  SYSTEM
+}
+
+enum NotificationChannel {
+  EMAIL
+  PUSH
+  SMS
+  IN_APP
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  firstName     String?
+  lastName      String?
+  bio           String?
+  avatar        String?
+  phone         String?
+  dateOfBirth   DateTime?
+  emailVerified Boolean   @default(false)
+  isVerified    Boolean   @default(false)
+  role          UserRole  @default(GUEST)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  
+  // Relations
+  listings      Listing[]
+  bookingsAsGuest Booking[] @relation("BookingsAsGuest")
+  bookingsAsHost  Booking[] @relation("BookingsAsHost")
+  reviews       Review[]
+  reviewsAsHost Review[] @relation("HostReviews")
+  wishlists     Wishlist[]
+  notifications Notification[]
+  sessions      Session[]
+  refreshTokens RefreshToken[]
+  
+  // Indexes
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  price       Float
+  currency    String   @default("USD")
+  
+  // Location
+  address     String
+  city        String
+  state       String?
+  country     String
+  postalCode  String?
+  latitude    Float
+  longitude   Float
+  
+  // Capacity
+  maxGuests   Int
+  bedrooms    Int
+  beds        Int
+  bathrooms   Int
+  
+  // Status
+  isActive    Boolean   @default(true)
+  isFeatured  Boolean   @default(false)
+  
+  // Ratings (denormalized for performance)
+  averageRating Float?  @default(0)
+  reviewCount   Int     @default(0)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  hostId      String
+  host        User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  
+  images      ListingImage[]
+  bookings    Booking[]
+  reviews     Review[]
+  amenities   ListingAmenity[]
+  wishlists   Wishlist[] @relation("WishlistListings")
+  
+  // Indexes
+  @@map("listings")
+  @@index([hostId])
+  @@index([categoryId])
+  @@index([city])
+  @@index([country])
+  @@index([price])
+  @@index([averageRating])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([latitude, longitude])
+  @@index([city, country])
+}
+
+model ListingImage {
+  id          String   @id @default(uuid())
+  url         String
+  publicId    String   // Cloudinary public ID
+  alt         String?
+  isPrimary   Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  listingId   String
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@map("listing_images")
+  @@index([listingId])
+  @@index([isPrimary])
+  @@index([sortOrder])
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  image       String?
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  listings    Listing[]
+  
+  // Indexes
+  @@map("categories")
+  @@index([slug])
+  @@index([parentId])
+}
+
+model Amenity {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  icon        String?
+  description String?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  listings    ListingAmenity[]
+  
+  // Indexes
+  @@map("amenities")
+  @@index([name])
+}
+
+model ListingAmenity {
+  id          String   @id @default(uuid())
+  
+  // Relations
+  listingId   String
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  amenityId   String
+  amenity     Amenity   @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  
+  // Unique constraint
+  @@unique([listingId, amenityId])
+  @@map("listing_amenities")
+  @@index([listingId])
+  @@index([amenityId])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  
+  // Dates
+  checkInDate DateTime
+  checkOutDate DateTime
+  guests      Int
+  
+  // Pricing
+  nights      Int
+  subtotal    Float
+  cleaningFee Float         @default(0)
+  serviceFee  Float         @default(0)
+  totalPrice  Float
+  
+  // Status
+  status      BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  
+  // Additional info
+  specialRequests String?
+  cancellationReason String?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  guestId     String
+  guest       User      @relation("BookingsAsGuest", fields: [guestId], references: [id])
+  
+  hostId      String
+  host        User      @relation("BookingsAsHost", fields: [hostId], references: [id])
+  
+  listingId   String
+  listing     Listing   @relation(fields: [listingId], references: [id])
+  
+  review      Review?
+  
+  // Indexes
+  @@map("bookings")
+  @@index([guestId])
+  @@index([hostId])
+  @@index([listingId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([checkInDate])
+  @@index([checkOutDate])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([guestId, status])
+  @@index([hostId, status])
+  @@index([listingId, checkInDate, checkOutDate])
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  rating      Int      // 1-5
+  comment     String   @db.Text
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  bookingId   String   @unique // One review per booking
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  
+  reviewerId  String
+  reviewer    User     @relation(fields: [reviewerId], references: [id])
+  
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  
+  hostId      String
+  host        User     @relation("HostReviews", fields: [hostId], references: [id])
+  
+  // Indexes
+  
+  // Indexes
+  @@map("reviews")
+  @@index([bookingId])
+  @@index([reviewerId])
+  @@index([listingId])
+  @@index([hostId])
+  @@index([rating])
+  @@index([createdAt])
+  @@index([listingId, rating])
+}
+
+model Wishlist {
+  id          String   @id @default(uuid())
+  name        String?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  listings    Listing[] @relation("WishlistListings")
+  
+  // Unique constraint
+  @@unique([userId, name])
+  @@map("wishlists")
+  @@index([userId])
+}
+
+model Notification {
+  id          String            @id @default(uuid())
+  type        NotificationType
+  channel     NotificationChannel
+  title       String
+  message     String
+  data        Json?             // Additional data (booking ID, listing ID, etc.)
+  isRead      Boolean           @default(false)
+  
+  // Timestamps
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@map("notifications")
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@index([userId, isRead])
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  sessionToken String  @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires     DateTime
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Indexes
+  @@map("sessions")
+  @@index([sessionToken])
+  @@index([userId])
+  @@index([expires])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires     DateTime
+  isRevoked   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Indexes
+  @@map("refresh_tokens")
+  @@index([token])
+  @@index([userId])
+  @@index([expires])
+  @@index([isRevoked])
+}

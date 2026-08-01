@@ -56,3 +56,9 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+export enum UserRole {
+  GUEST = "GUEST",
+  HOST = "HOST",
+  ADMIN = "ADMIN",
+}
